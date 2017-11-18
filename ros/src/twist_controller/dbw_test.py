@@ -97,7 +97,8 @@ class DBWTestNode(object):
     def actual_brake_cb(self, msg):
         if self.dbw_enabled and self.brake is not None:
             self.brake_data.append({'actual': msg.pedal_cmd,
-                                    'proposed': self.brake})
+   
+                                 'proposed': self.brake})
             self.brake = None
 
 
