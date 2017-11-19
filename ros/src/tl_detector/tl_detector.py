@@ -193,7 +193,7 @@ class TLDetector(object):
         # We have to difine the visibility..(with distance)
 
         if light:
-            if light_distance > 50: #How we can calculate this? Maybe we need simulator information..
+            if TL_distance > 50: #How we can calculate this? Maybe we need simulator information..
                 return -1, TrafficLight.UNKNOWN
 
             else:
