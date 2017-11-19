@@ -101,9 +101,9 @@ class TLDetector(object):
         """
         Sudo_Min_Dist = 1e9 
         index = None
-        for wp in range(len(self.waypoints)):
-            x_dist = pose.position.x - self.waypoints[wp].pose.pose.position.x
-            y_dist = pose.position.y - self.waypoints[wp].pose.pose.position.y
+        for wp in range(len(self.waypoints.waypoints)):
+            x_dist = pose.position.x - self.waypoints.waypoints[wp].pose.pose.position.x
+            y_dist = pose.position.y - self.waypoints.waypoints[wp].pose.pose.position.y
             wp_dist = np.sqrt(x_dist**2 + y_dist**2)
             
             if wp_dist < Sudo_Min_Dist:
@@ -119,9 +119,9 @@ class TLDetector(object):
         """
         Sudo_Min_Dist = 1e9 
         index = None
-        for wp in range(len(self.waypoints)):
-            x_dist = stopline[0] - self.waypoints[wp].pose.pose.position.x
-            y_dist = stopline[1] - self.waypoints[wp].pose.pose.position.y
+        for wp in range(len(self.waypoints.waypoints)):
+            x_dist = stopline[0] - self.waypoints.waypoints[wp].pose.pose.position.x
+            y_dist = stopline[1] - self.waypoints.waypoints[wp].pose.pose.position.y
             wp_dist = np.sqrt(x_dist**2 + y_dist**2)
             
             if wp_dist < Sudo_Min_Dist:
@@ -163,7 +163,7 @@ class TLDetector(object):
         
         # Find closest waypoint indexs to each stop line (traffic light)
         for i in range(len(stop_line_positions)):
-            TL_close = self.get_closest_waypoint_stop_line(self, stop_line_positions[i])
+            TL_close = self.get_closest_waypoint_stop_line(stop_line_positions[i])
             TL_waypoint_close.append(TL_close)
         
         TL_waypoint_close_sort = TL_waypoint_close
@@ -186,7 +186,7 @@ class TLDetector(object):
         
         # Find closest next stop line (traffic light) position to me 
         stop_line_index = TL_waypoint_close.index(TL_waypoint_next_me)
-        light = stop_line_position[stop_line_index]
+        light = stop_line_positions[stop_line_index]
         
         TL_distance = np.sqrt((light[0] - self.waypoints[car_position].pose.pose.position.x)**2 + (light[1] - self.waypoints[car_position].pose.pose.position.y)**2)
         
