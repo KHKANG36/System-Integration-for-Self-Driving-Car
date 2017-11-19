@@ -8,7 +8,7 @@ class TLClassifier(object):
     def __init__(self):
         # Please modify this code for your best  
         self.sess = tf.Session()
-        graph = load_graph(filename) #Put the file name
+        #graph = load_graph(filename) #Put the file name
 
         # Access the output node
         self.output = graph.get_tensor_by_name('trafficlight/model_saved/XXX:0')
@@ -48,3 +48,9 @@ class TLClassifier(object):
            return TrafficLight.GREEN
         else: 
            return TrafficLight.UNKNOWN
+
+if __name__ == '__main__':
+    try:
+        TLClassifier(object)
+    except rospy.ROSInterruptException:
+        rospy.logerr('Could not start traffic node.')
