@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+#TeamX - Ryan Kang
+
 import rospy
 from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseStamped, Pose
@@ -10,6 +12,7 @@ from light_classification.tl_classifier import TLClassifier
 import tf
 import cv2
 import yaml
+import numpy as np
 
 STATE_COUNT_THRESHOLD = 3
 
@@ -93,31 +96,52 @@ class TLDetector(object):
     def get_closest_waypoint(self, pose):
         """Identifies the closest path waypoint to the given position
             https://en.wikipedia.org/wiki/Closest_pair_of_points_problem
-        Args:
-            pose (Pose): position to match a waypoint to
-
-        Returns:
-            int: index of the closest waypoint in self.waypoints
-
+        Args:pose (Pose): position to match a waypoint to
+        Returns:int: index of the closest waypoint in self.waypoints
         """
-        #TODO implement
-        return 0
+        Sudo_Min_Dist = 1e9 
+        index = None
+        for wp in range(len(self.waypoints)):
+            x_dist = pose.position.x - self.waypoints[wp].pose.pose.position.x
+            y_dist = pose.position.y - self.waypoints[wp].pose.pose.position.y
+            wp_dist = np.sqrt(x_dist**2 + y_dist**2)
+            
+            if wp_dist < Sudo_Min_Dist:
+                Sudo_Min_Dist = wp_dist
+                index = wp
+        return index
+    
+    def get_closest_waypoint_stop_line(self, stopline):
+        """Identifies the closest path waypoint to the given position
+            https://en.wikipedia.org/wiki/Closest_pair_of_points_problem
+        Args:pose (Pose): position to match a waypoint to
+        Returns:int: index of the closest waypoint in self.waypoints
+        """
+        Sudo_Min_Dist = 1e9 
+        index = None
+        for wp in range(len(self.waypoints)):
+            x_dist = stopline[0] - self.waypoints[wp].pose.pose.position.x
+            y_dist = stopline[1] - self.waypoints[wp].pose.pose.position.y
+            wp_dist = np.sqrt(x_dist**2 + y_dist**2)
+            
+            if wp_dist < Sudo_Min_Dist:
+                Sudo_Min_Dist = wp_dist
+                index = wp
+        return index
 
     def get_light_state(self, light):
         """Determines the current color of the traffic light
 
-        Args:
-            light (TrafficLight): light to classify
+        Args:light (TrafficLight): light to classify
 
-        Returns:
-            int: ID of traffic light color (specified in styx_msgs/TrafficLight)
+        Returns:int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
         if(not self.has_image):
             self.prev_light_loc = None
             return False
 
-        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8") # I changed this from bgr8 to rgb8
 
         #Get classification
         return self.light_classifier.get_classification(cv_image)
@@ -132,17 +156,49 @@ class TLDetector(object):
 
         """
         light = None
+        TL_waypoint_close = []
 
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
+        
+        # Find closest waypoint indexs to each stop line (traffic light)
+        for i in range(len(stop_line_positions)):
+            TL_close = self.get_closest_waypoint_stop_line(self, stop_line_positions[i])
+            TL_waypoint_close.append(TL_close)
+        
+        TL_waypoint_close_sort = TL_waypoint_close
+        TL_waypoint_close_sort.sort()
+            
+        # Find closest next stop line (traffic light) index to me
         if(self.pose):
-            car_position = self.get_closest_waypoint(self.pose.pose)
-
-        #TODO find the closest visible traffic light (if one exists)
+            car_position = self.get_closest_waypoint(self.pose.pose) #My current car position index 
+        
+        if car_position > max(TL_waypoint_close):
+            TL_waypoint_next_me = min(TL_waypoint_close)
+        else if car_position < min(TL_waypoint_close):
+            TL_waypoint_next_me = min(TL_waypoint_close)
+        else:
+            for j in range(len(TL_waypoint_close_sort)):
+                if (car_position - TL_waypoint_close_sort[j]) > 0:
+                    pass
+                else:
+                    TL_waypoint_next_me = TL_waypoint_close_sort[j]
+        
+        # Find closest next stop line (traffic light) position to me 
+        stop_line_index = TL_waypoint_close.index(TL_waypoint_next_me)
+        light = stop_line_position[stop_line_index]
+        
+        TL_distance = np.sqrt((light[0] - self.waypoints[car_position].pose.pose.position.x)**2 + (light[1] - self.waypoints[car_position].pose.pose.position.y)**2)
+        
+        # We have to difine the visibility..(with distance)
 
         if light:
-            state = self.get_light_state(light)
-            return light_wp, state
+            if light_distance >= 50 #How we can calculate this? Maybe we need simulator information..
+                return -1, TrafficLight.UNKNOWN
+
+            else:
+                state = self.get_light_state(light)
+                return light, state    
         self.waypoints = None
         return -1, TrafficLight.UNKNOWN
 
