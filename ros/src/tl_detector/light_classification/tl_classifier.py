@@ -16,7 +16,7 @@ class TLClassifier(object):
         
         pass
 
-    def load_graph(filename) 
+    def load_graph(filename): 
         with tf.gfile.GFile(frozen_graph_filename, "rb") as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
