@@ -51,6 +51,6 @@ class TLClassifier(object):
 
 if __name__ == '__main__':
     try:
-        TLClassifier(object)
+        TLClassifier()
     except rospy.ROSInterruptException:
         rospy.logerr('Could not start traffic node.')
