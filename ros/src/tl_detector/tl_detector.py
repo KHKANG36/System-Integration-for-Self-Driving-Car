@@ -175,7 +175,7 @@ class TLDetector(object):
         
         if car_position > max(TL_waypoint_close):
             TL_waypoint_next_me = min(TL_waypoint_close)
-        else if car_position < min(TL_waypoint_close):
+        elif car_position < min(TL_waypoint_close):
             TL_waypoint_next_me = min(TL_waypoint_close)
         else:
             for j in range(len(TL_waypoint_close_sort)):
