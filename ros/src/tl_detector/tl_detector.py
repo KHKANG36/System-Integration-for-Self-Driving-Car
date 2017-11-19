@@ -188,7 +188,7 @@ class TLDetector(object):
         stop_line_index = TL_waypoint_close.index(TL_waypoint_next_me)
         light = stop_line_positions[stop_line_index]
         
-        TL_distance = np.sqrt((light[0] - self.waypoints[car_position].pose.pose.position.x)**2 + (light[1] - self.waypoints[car_position].pose.pose.position.y)**2)
+        TL_distance = np.sqrt((light[0] - self.waypoints.waypoints[car_position].pose.pose.position.x)**2 + (light[1] - self.waypoints.waypoints[car_position].pose.pose.position.y)**2)
         
         # We have to difine the visibility..(with distance)
 
