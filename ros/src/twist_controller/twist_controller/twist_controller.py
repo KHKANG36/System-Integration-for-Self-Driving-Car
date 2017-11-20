@@ -30,7 +30,7 @@ class Controller(object):
         next_steer = self.LPF.filt(next_steer)
         
         acc = self.pid.step(vel_err, duration)
-        acc = self.pid.filt(acc)
+        acc = self.LPF.filt(acc)
 
         if acc >0.0:
            throttle = acc

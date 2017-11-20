@@ -117,7 +117,7 @@ class DBWNode(object):
                throttle, brake, steering = self.controller.control(twist_cmd=self.current_twist_cmd, current_velocity=self.current_velocity,duration = duration)
                
             # if <dbw is enabled>:
-               self.publish(throttle, brake, steer)
+               self.publish(throttle, brake, steering)
             else:
                self.reset_flag = True
             
