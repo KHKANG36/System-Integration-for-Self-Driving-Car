@@ -13,7 +13,7 @@ class TLClassifier(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
         """
         #TODO implement light color prediction
-        light_state=traffic classify(image)
+        light_state=classify(image)
         if light_state == 0:
            return TrafficLight.RED
         if light_state == 1:
