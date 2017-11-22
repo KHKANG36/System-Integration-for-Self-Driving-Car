@@ -13,8 +13,10 @@ class Controller(object):
         # TODO: Implement
         self.yawcontroller = YawController(wheel_base= Car_Param.wheel_base, steer_ratio = Car_Param.steer_ratio, min_speed= Car_Param.min_speed, max_lat_accel= Car_Param.max_lat_accel, max_steer_angle=Car_Param.max_steer_angle)
         self.Car_Param = Car_Param
-        self.pid = PID(kp = 5, ki=0.5, kd = 0.5, mn = Car_Param.decel_limit, mx=Car_Param.accel_limit)
-        self.LPF = LowPassFilter(tau=3, ts =1) 
+        #self.pid = PID(kp = 0.1, ki=0.0, kd = 0.1, mn = Car_Param.decel_limit, mx=Car_Param.accel_limit)
+        #self.pid = PID(kp = 0.5, ki=0.005, kd = 0.05, mn = Car_Param.decel_limit, mx=Car_Param.accel_limit)
+        self.pid = PID(kp = 5.0, ki=0.5, kd = 0.5, mn = Car_Param.decel_limit, mx=Car_Param.accel_limit)
+        self.LPF = LowPassFilter(tau=0.3, ts =1) 
    
     def reset(self):
         self.pid.reset()

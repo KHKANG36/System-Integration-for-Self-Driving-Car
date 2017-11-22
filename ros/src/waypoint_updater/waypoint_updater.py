@@ -27,16 +27,16 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 100 # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 40 # Number of waypoints we will publish. You can change this number
 OPTIMAL_BREAKING_DIST = 100  # Normal zone for gradual breaking for the car 
 PI = 3.141593
 PIOVER2 = 1.570796
 PI1POINT5 = 4.712389   #1.5 * pi 
 
-CHECK_AHEAD_NUM_INDEXES = 50
+CHECK_AHEAD_NUM_INDEXES = 10
 PROXIMITY_THRESH = 25
 
-LAGBUMPER = 20
+LAGBUMPER = 0
 
 
 
@@ -93,7 +93,7 @@ class WaypointUpdater(object):
 	lowestDist = 999999.0
         nearestWPIdx = 0  
 
-	rospy.logdebug("Brute find")
+	#rospy.logdebug("Brute find")
 
         if idxEnd + 1 >= self.lenBaseWPs:
 		idxTheEnd = self.lenBaseWPs -1
@@ -103,7 +103,7 @@ class WaypointUpdater(object):
 	if idxStart >= idxTheEnd:
 		return idxStart
 
-        rospy.logdebug("Brute: startidx=%s, endidx=%s", idxStart, idxTheEnd)
+        #rospy.logdebug("Brute: startidx=%s, endidx=%s", idxStart, idxTheEnd)
         
         for i in range(idxStart, idxTheEnd+1):
  		d = self.dist(self.base_waypoints[i].pose.pose.position, curPos)
@@ -111,7 +111,7 @@ class WaypointUpdater(object):
 			lowestDist = d
                         nearestWPIdx = i
 
-        rospy.logdebug("Brute: Lowest dist found=%s, idx=%s", lowestDist, nearestWPIdx)
+        #rospy.logdebug("Brute: Lowest dist found=%s, idx=%s", lowestDist, nearestWPIdx) 
 	return nearestWPIdx
 
 
@@ -122,12 +122,17 @@ class WaypointUpdater(object):
 
 	if d < PROXIMITY_THRESH:
 		# Use the previous index as the starting point to search for closest point
-		nearestWPIdx = self.get_nearest_brute(self.prevWPIdx, self.prevWPIdx + CHECK_AHEAD_NUM_INDEXES, carpose.position)
+		nearestWPIdx = self.get_nearest_brute(self.prevWPIdx-1, self.prevWPIdx + CHECK_AHEAD_NUM_INDEXES, carpose.position)
+                #bruteIdx = self.get_nearest_brute(0, self.lenBaseWPs-1, carpose.position)
+		#rospy.logwarn("Dist=%s  PrevWP=%s  NewWP=%s, bruteWP=%s", d, self.prevWPIdx, nearestWPIdx, bruteIdx)
+                
+
                 #double check the found one
-                d = self.dist(self.base_waypoints[nearestWPIdx].pose.pose.position, carpose.position)
-		if d > PROXIMITY_THRESH:
-			# Have to check all potential wps
-  			nearestWPIdx = self.get_nearest_brute(0, self.lenBaseWPs-1, carpose.position)
+                #d = self.dist(self.base_waypoints[nearestWPIdx].pose.pose.position, carpose.position)
+		#if d > PROXIMITY_THRESH:
+	        #	rospy.logwarn("Double check")
+	        #	# Have to check all potential wps
+  		#	nearestWPIdx = self.get_nearest_brute(0, self.lenBaseWPs-1, carpose.position)
 			
 	else:
 		# Have to check all potential wps
@@ -135,21 +140,20 @@ class WaypointUpdater(object):
 		rospy.logdebug("Checking all points!!!! dist=%s  prev idx=%s", d, self.prevWPIdx)
 	
 	#rospy.logdebug("=================================")
-	rospy.logdebug("Nearest idx=%s.", nearestWPIdx)
-        rospy.logdebug("car pos= %s" , carpose)
+	#rospy.logdebug("Nearest idx=%s.", nearestWPIdx)
+        #rospy.logdebug("car pos= %s" , carpose)
         #rospy.logdebug("waypoint pos= %s" , base_waypoints[nearestWPIdx].pose.pose)
 
         # Determine if point in front of car...
 
         # Convert quaternion orientation to euler for car 
         carroll, carpitch, caryaw = self.get_euler(carpose)
-        #rospy.logdebug("Car rol=%s. pit=%s, yaw=%s", carroll, carpitch, caryaw)
-
+        
         # Get angle from car to closest waypoint
   	angleToWP = self.get_angle_to_point(carpose, self.base_waypoints[nearestWPIdx].pose.pose)
 
 	#rospy.logwarn("Angle to waypoint=%s", angleToWP)
-	rospy.logdebug("Angle to waypoint=%s", angleToWP)
+	#rospy.logdebug("Angle to waypoint=%s", angleToWP)
 
         # Determine if closest waypoint is behind the car.  
         yawDiff = abs(caryaw - angleToWP) 
@@ -157,11 +161,12 @@ class WaypointUpdater(object):
 		#Car location is ahead of first waypoint so increment waypoint index assuming next waypoint would be ahead
 		#rospy.logdebug("Car is ahead of closest waypoint.  Bumping increment.")
 		nearestWPIdx+=1  
+		#rospy.logwarn("Bumped")
 		
 
         self.prevWPIdx = nearestWPIdx	
 
-        rospy.logdebug("Adjusted Nearest idx=%s.", nearestWPIdx)
+        #rospy.logdebug("Adjusted Nearest idx=%s.", nearestWPIdx)
 
         return nearestWPIdx
 
@@ -184,26 +189,35 @@ class WaypointUpdater(object):
 		rospy.logwarn("Waiting for base waypoints...")
 		return
 	
-   	rospy.logdebug("begin msg pos x=%s, y=%s", msg.pose.position.x, msg.pose.position.y) 
+   	#rospy.logdebug("begin msg pos x=%s, y=%s", msg.pose.position.x, msg.pose.position.y) 
 	
+        #rospy.logwarn("Before")
+
+
+
+        #rate = rospy.Rate(50) # 50Hz
+
+
         # Do not process get nearest waypoint again if in same position
         if self.oldpos is None:
                 # Find nearest waypoint ahead of car
                 nearestWPIdx = self.find_wp_ahead(msg.pose)
                 # Save position
                 self.oldpos = deepcopy(msg.pose)
-                rospy.logdebug("First old pose=%s", self.oldpos)                 
+                #rospy.logdebug("First old pose=%s", self.oldpos)                 
         elif (self.oldpos.position.x == msg.pose.position.x) and (self.oldpos.position.y == msg.pose.position.y):
                 nearestWPIdx = self.prevWPIdx
-                rospy.logdebug("Same as old position car pos x=%s", self.oldpos.position.x) 
+                #rospy.logdebug("Same as old position car pos x=%s", self.oldpos.position.x) 
                 #rospy.logwarn("old== returning")
         else:
 		# Find nearest waypoint ahead of car
                 nearestWPIdx = self.find_wp_ahead(msg.pose)
                 # Save position
                 self.oldpos = deepcopy(msg.pose)
-                rospy.logdebug("New position of car. pos x=%s", self.oldpos.position.x) 
-	
+                #rospy.logdebug("New position of car. pos x=%s", self.oldpos.position.x) 
+        
+
+	nearestWPIdx += LAGBUMPER
 	
         # Put wanted waypoints in control WP list
         cntrl_waypoints = Lane()
@@ -277,6 +291,9 @@ class WaypointUpdater(object):
 	
         # Publish to /final_waypoints
 	self.final_waypoints_pub.publish(cntrl_waypoints)
+        #rospy.logwarn("Before sleep")
+	#rate.sleep()
+        #rospy.logwarn("After")
 
 	#rospy.logwarn("Published control %s waypoints", cntrl_waypoints.waypoints[0].pose.pose.position)
 
@@ -296,7 +313,7 @@ class WaypointUpdater(object):
 
     def traffic_cb(self, msg):
         # TODO: Callback for /traffic_waypoint message. Implement
-        rospy.logdebug("traffic_cb. Msg.data=%s", msg.data)
+        #rospy.logdebug("traffic_cb. Msg.data=%s", msg.data)
         self.stopLightIdx = msg.data
         #self.stopLightIdx = -1        
 
