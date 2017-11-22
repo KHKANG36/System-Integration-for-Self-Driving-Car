@@ -67,7 +67,6 @@ class TLClassifier(object):
             detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
             num_detections = detection_graph.get_tensor_by_name('num_detections:0')
             #currently the image is read by feeding the path of the image directory
-            image = Image.open(image_path)
             image_np = load_image_into_numpy_array(image)
             image_np_expanded = np.expand_dims(image_np, axis=0)
 
