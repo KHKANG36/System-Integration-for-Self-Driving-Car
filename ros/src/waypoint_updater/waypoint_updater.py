@@ -27,13 +27,13 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 40 # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 50 # Number of waypoints we will publish. You can change this number
 OPTIMAL_BREAKING_DIST = 100  # Normal zone for gradual breaking for the car 
 PI = 3.141593
 PIOVER2 = 1.570796
 PI1POINT5 = 4.712389   #1.5 * pi 
 
-CHECK_AHEAD_NUM_INDEXES = 10
+CHECK_AHEAD_NUM_INDEXES = 50
 PROXIMITY_THRESH = 25
 
 LAGBUMPER = 0
