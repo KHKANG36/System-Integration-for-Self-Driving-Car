@@ -9,14 +9,14 @@ ONE_MPH = 0.44704
 
 
 class Controller(object):
-    def __init__(self, Car_Param): # car_param is a class
+    def __init__(self,Car_Param): # car_param is a class
         # TODO: Implement
         self.yawcontroller = YawController(wheel_base= Car_Param.wheel_base, steer_ratio = Car_Param.steer_ratio, min_speed= Car_Param.min_speed, max_lat_accel= Car_Param.max_lat_accel, max_steer_angle=Car_Param.max_steer_angle)
+        #self.sampling_rate = sampling_rate
         self.Car_Param = Car_Param
-        #self.pid = PID(kp = 0.1, ki=0.0, kd = 0.1, mn = Car_Param.decel_limit, mx=Car_Param.accel_limit)
-        #self.pid = PID(kp = 0.5, ki=0.005, kd = 0.05, mn = Car_Param.decel_limit, mx=Car_Param.accel_limit)
-        self.pid = PID(kp = 5.0, ki=0.5, kd = 0.5, mn = Car_Param.decel_limit, mx=Car_Param.accel_limit)
-        self.LPF = LowPassFilter(tau=0.3, ts =1) 
+        self.pid = PID(kp = 1, ki=0.05, kd = 0.01, mn = Car_Param.decel_limit, mx=Car_Param.accel_limit)
+        self.LPF_acc = LowPassFilter(tau=0.2, ts =0.02) 
+        self.LPF_steer = LowPassFilter(tau=5, ts =0.5) 
    
     def reset(self):
         self.pid.reset()
@@ -29,10 +29,10 @@ class Controller(object):
         vel_err = linear_vel - current_velocity.twist.linear.x
         
         next_steer = self.yawcontroller.get_steering(linear_vel, angular_vel, current_velocity.twist.linear.x)
-        next_steer = self.LPF.filt(next_steer)
+        next_steer = self.LPF_steer.filt(next_steer)
         
         acc = self.pid.step(vel_err, duration)
-        acc = self.LPF.filt(acc)
+        #acc = self.LPF_acc.filt(acc)
 
         if acc >0.0:
            throttle = acc
