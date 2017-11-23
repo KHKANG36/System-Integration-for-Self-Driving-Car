@@ -248,7 +248,8 @@ class WaypointUpdater(object):
 	# decelerate if stop or obstacle...        
 	#if self.stopLightIdx != -1 or self.obstacleIdx != -1:
 	if stopWPIdx != -1:
-		rospy.logdebug("Stopping.....")		
+		#rospy.logdebug("Stopping.....")		
+		rospy.logwarn("Stopping.....Stoplight WP Index=%s", stopWPIdx)
 		
 		if nearestWPIdx < stopWPIdx:
 			
