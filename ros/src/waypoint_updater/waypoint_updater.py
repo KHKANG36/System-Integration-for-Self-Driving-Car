@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #Team X - Greg McCluskey
+#Version 1.4
 
 import rospy
 from geometry_msgs.msg import PoseStamped
