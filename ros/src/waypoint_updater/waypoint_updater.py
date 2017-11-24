@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #Team X - Greg McCluskey
-#Version 1.4
+#Version 1.5
 
 import rospy
 from geometry_msgs.msg import PoseStamped
@@ -191,13 +191,8 @@ class WaypointUpdater(object):
 		return
 	
    	#rospy.logdebug("begin msg pos x=%s, y=%s", msg.pose.position.x, msg.pose.position.y) 
-	
-        #rospy.logwarn("Before")
-
-
 
         #rate = rospy.Rate(50) # 50Hz
-
 
         # Do not process get nearest waypoint again if in same position
         if self.oldpos is None:
@@ -229,7 +224,7 @@ class WaypointUpdater(object):
 
         stopWPIdx = self.getClosestStopIdx()
         #rospy.logwarn("stop idx...%s", stopWPIdx)
-        if( stopWPIdx != -1 and stopWPIdx > nearestWPIdx ):
+        if( stopWPIdx != -1 ):
 		endWPIdx = stopWPIdx
 		#rospy.logwarn("stop requested...")
         #if( ( self.stopLightIdx != -1 or self.obstacleIdx != -1 ) and self.stopLightIdx > nearestWPIdx ):
@@ -257,6 +252,7 @@ class WaypointUpdater(object):
  			stopD = self.distance(self.base_waypoints, nearestWPIdx, stopWPIdx )
 			#rospy.logwarn("here dist = %s", stopD)
 		else:
+			
 			stopD = 0
 
 		if stopD < OPTIMAL_BREAKING_DIST:
