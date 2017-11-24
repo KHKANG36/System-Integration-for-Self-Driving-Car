@@ -224,23 +224,15 @@ class WaypointUpdater(object):
 
         stopWPIdx = self.getClosestStopIdx()
         #rospy.logwarn("stop idx...%s", stopWPIdx)
-        if( stopWPIdx != -1 ):
+        if( stopWPIdx != -1 ): #v1.5
 		endWPIdx = stopWPIdx
 		#rospy.logwarn("stop requested...")
-        #if( ( self.stopLightIdx != -1 or self.obstacleIdx != -1 ) and self.stopLightIdx > nearestWPIdx ):
-        #	endWPIdx = self.stopLightIdx  #Only need to go to stop light
-		
+        	
         # Create initial control/final waypoints
 	for i in range(nearestWPIdx, endWPIdx ):
 		cntrl_waypoints.waypoints.append(deepcopy(self.base_waypoints[i]))
 
-    	#for idx in range(len(cntrl_waypoints.waypoints)-1,-1,-1):
-	#	cntrl_waypoints.waypoints[idx].twist.twist.angular.z = 5.0 
-        #        cntrl_waypoints.waypoints[idx].twist.twist.angular.x = 5.0 
-        #        cntrl_waypoints.waypoints[idx].twist.twist.angular.y = 5.0 	
-        #rospy.logdebug("start idx= %s, endWPidx = %s",nearestWPIdx, endWPIdx)
-	#rospy.logdebug("control waypoings=%s", cntrl_waypoints)
-
+    	
 	# decelerate if stop or obstacle...        
 	#if self.stopLightIdx != -1 or self.obstacleIdx != -1:
 	if stopWPIdx != -1:
@@ -252,7 +244,8 @@ class WaypointUpdater(object):
  			stopD = self.distance(self.base_waypoints, nearestWPIdx, stopWPIdx )
 			#rospy.logwarn("here dist = %s", stopD)
 		else:
-			
+			#cntrl_waypoints.waypoints are empty at this point. Add one.
+			cntrl_waypoints.waypoints.append(deepcopy(self.base_waypoints[nearestWPIdx])) #v1.5
 			stopD = 0
 
 		if stopD < OPTIMAL_BREAKING_DIST:
