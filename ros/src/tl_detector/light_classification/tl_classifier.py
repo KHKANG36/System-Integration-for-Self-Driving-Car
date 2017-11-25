@@ -11,9 +11,9 @@ from io import StringIO
 from matplotlib import pyplot as plt
 from PIL import Image
 
-from utils import label_map_util
+from object_detection.utils import label_map_util
 
-from utils import visualization_utils as vis_util
+from object_detection.utils import visualization_utils as vis_util
 
 
 class TLClassifier(object):
@@ -31,10 +31,10 @@ class TLClassifier(object):
         Returns:
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
         """
-        PATH_TO_CKPT = 'model/frozen_inference_graph.pb'
+        PATH_TO_CKPT = '/home/student/Documents/finalproject/mk1/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/frozen_inference_graph.pb'
 
         # List of the strings that is used to add correct label for each box.
-        PATH_TO_LABELS = 'model/traffic_label.pbtxt'
+        PATH_TO_LABELS = '/home/student/Documents/finalproject/mk1/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/traffic_label.pbtxt'
 
         NUM_CLASSES = 3
 
@@ -51,13 +51,8 @@ class TLClassifier(object):
         categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
         category_index = label_map_util.create_category_index(categories)
 
-        def load_image_into_numpy_array(image):
-
-               (im_width, im_height) = image.size
-               return np.array(image.getdata()).reshape((im_height, im_width, 3)).astype(np.uint8)
-
-
         with detection_graph.as_default():
+          print("Detection commencing")
           with tf.Session(graph=detection_graph) as sess:
 
             image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
@@ -67,7 +62,8 @@ class TLClassifier(object):
             detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
             num_detections = detection_graph.get_tensor_by_name('num_detections:0')
             #currently the image is read by feeding the path of the image directory
-            image_np = load_image_into_numpy_array(image)
+            #image_np = load_image_into_numpy_array(image)
+            image_np = np.asarray(image)
             image_np_expanded = np.expand_dims(image_np, axis=0)
 
             (boxes, scores, classes, num) = sess.run(
@@ -83,6 +79,7 @@ class TLClassifier(object):
                                 category_index,
                                 use_normalized_coordinates=True,
                                 line_thickness=8)
+        print (class_name)
         if class_name == 'Green':
                   return TrafficLight.GREEN
         elif class_name == 'Red':
