@@ -141,7 +141,8 @@ class TLDetector(object):
             self.prev_light_loc = None
             return False
 
-        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8") # I changed this from bgr8 to rg
+        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8") # I changed this from bgr8 to rgb8
+
         #Get classification
         return self.light_classifier.get_classification(cv_image)
 
@@ -170,29 +171,33 @@ class TLDetector(object):
             
         # Find closest next stop line (traffic light) index to me
         if(self.pose):
-            car_position = self.get_closest_waypoint(self.pose.pose) #My current car position index 
+           car_position = self.get_closest_waypoint(self.pose.pose) 
+        #rospy.logwarn(car_position) 
         
-        if car_position > max(TL_waypoint_close):
-            TL_waypoint_next_me = min(TL_waypoint_close)
-        elif car_position < min(TL_waypoint_close):
-            TL_waypoint_next_me = min(TL_waypoint_close)
+        if car_position > max(TL_waypoint_close_sort):
+            TL_waypoint_next_me = min(TL_waypoint_close_sort)
+        elif car_position < min(TL_waypoint_close_sort):
+            TL_waypoint_next_me = min(TL_waypoint_close_sort)
         else:
             for j in range(len(TL_waypoint_close_sort)):
-                if (car_position - TL_waypoint_close_sort[j]) > 0:
-                    pass
-                else:
-                    TL_waypoint_next_me = TL_waypoint_close_sort[j]
+                if (car_position - TL_waypoint_close_sort[j]) < 0:
+                   TL_waypoint_next_me = TL_waypoint_close_sort[j]
+                   break
+                else: 
+                   pass
         
         # Find closest next stop line (traffic light) position to me 
-        stop_line_index = TL_waypoint_close.index(TL_waypoint_next_me)
-        light = stop_line_positions[stop_line_index]
+        stop_line_index = TL_waypoint_next_me
+        rospy.logwarn(stop_line_index)
+        stop_line_index_light = TL_waypoint_close.index(TL_waypoint_next_me)
+        light = stop_line_positions[stop_line_index_light]
+       
         
         TL_distance = np.sqrt((light[0] - self.waypoints.waypoints[car_position].pose.pose.position.x)**2 + (light[1] - self.waypoints.waypoints[car_position].pose.pose.position.y)**2)
-        
-        # We have to difine the visibility..(with distance)
+       
 
         if light:
-            if TL_distance > 50: #How we can calculate this? Maybe we need simulator information..
+            if TL_distance > 100: 
                 return -1, TrafficLight.UNKNOWN
 
             else:
