@@ -20,6 +20,35 @@ class TLClassifier(object):
     def __init__(self):
         #TODO load classifier
         self.TrafficLight=None 
+        PATH_TO_CKPT = '/home/student/Documents/finalproject/mk1/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/frozen_inference_graph.pb'
+
+        # List of the strings that is used to add correct label for each box.
+        PATH_TO_LABELS = '/home/student/Documents/finalproject/mk1/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/traffic_label.pbtxt'
+
+        NUM_CLASSES = 3
+
+        self.detection_graph = tf.Graph()
+        with self.detection_graph.as_default():
+          od_graph_def = tf.GraphDef()
+          sess=tf.Session(graph=self.detection_graph) 
+          with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
+            serialized_graph = fid.read()
+            od_graph_def.ParseFromString(serialized_graph)
+            tf.import_graph_def(od_graph_def, name='')
+            
+
+
+        label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
+        categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
+        category_index = label_map_util.create_category_index(categories)
+
+
+        self.image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
+        self.detection_boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
+        self.detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
+        self.detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
+        self.num_detections = detection_graph.get_tensor_by_name('num_detections:0')
+        
 
 
         pass
@@ -31,46 +60,18 @@ class TLClassifier(object):
         Returns:
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
         """
-        PATH_TO_CKPT = '/home/student/Documents/finalproject/mk1/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/frozen_inference_graph.pb'
-
-        # List of the strings that is used to add correct label for each box.
-        PATH_TO_LABELS = '/home/student/Documents/finalproject/mk1/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/traffic_label.pbtxt'
-
-        NUM_CLASSES = 3
-
-        detection_graph = tf.Graph()
-        with detection_graph.as_default():
-          od_graph_def = tf.GraphDef()
-          with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
-            serialized_graph = fid.read()
-            od_graph_def.ParseFromString(serialized_graph)
-            tf.import_graph_def(od_graph_def, name='')
-
-
-        label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
-        categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
-        category_index = label_map_util.create_category_index(categories)
-
-        with detection_graph.as_default():
-          print("Detection commencing")
-          with tf.Session(graph=detection_graph) as sess:
-
-            image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
-
-            detection_boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
-            detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
-            detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
-            num_detections = detection_graph.get_tensor_by_name('num_detections:0')
+        print("Detection commencing")
+        with self.detection_graph.as_default():
             #currently the image is read by feeding the path of the image directory
             #image_np = load_image_into_numpy_array(image)
             image_np = np.asarray(image)
             image_np_expanded = np.expand_dims(image_np, axis=0)
 
-            (boxes, scores, classes, num) = sess.run(
-                                   [detection_boxes, detection_scores, detection_classes, num_detections],
-                                   feed_dict={image_tensor: image_np_expanded})
+            (boxes, scores, classes, num) = self.sess.run(
+                                   [self.detection_boxes, self.detection_scores, self.detection_classes, self.num_detections],
+                                   feed_dict={self.image_tensor: image_np_expanded})
 
-
+            
             _,class_name=vis_util.visualize_boxes_and_labels_on_image_array(
                                 image_np,
                                 np.squeeze(boxes),
@@ -81,13 +82,15 @@ class TLClassifier(object):
                                 line_thickness=8)
         print (class_name)
         if class_name == 'Green':
-                  return TrafficLight.GREEN
+                  self.TrafficLight= TrafficLight.GREEN
         elif class_name == 'Red':
-                   return TrafficLight.RED
+                  self.TrafficLight= TrafficLight.RED
         elif class_name == 'Yellow':
-                   return TrafficLight.YELLOW
+                  self.TrafficLight= TrafficLight.YELLOW
         else:
-           return TrafficLight.UNKNOWN
+                 self.TrafficLight=TrafficLight.UNKNOWN
+
+        return self.TrafficLight         
 
 if __name__ == '__main__':
     try:
