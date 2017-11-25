@@ -3,7 +3,7 @@ import os
 import sys
 
 import tensorflow as tf
-
+import time
 
 from collections import defaultdict
 from io import StringIO
@@ -24,6 +24,7 @@ PATH_TO_LABELS = 'model/traffic_label.pbtxt'
 NUM_CLASSES = 3
 
 detection_graph = tf.Graph()
+begin_time=time.time()
 with detection_graph.as_default():
   od_graph_def = tf.GraphDef()
   with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
@@ -70,6 +71,11 @@ with detection_graph.as_default():
                         use_normalized_coordinates=True,
                         line_thickness=8)
     print(class_name)
+
+end_time=time.time()
+time_elasped=round(end_time-begin_time,2)
+print("elasped time {} seconds".format(time_elasped))
+
 
 '''
 if class_name == 'Green':
