@@ -141,8 +141,7 @@ class TLDetector(object):
             self.prev_light_loc = None
             return False
 
-        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8") # I changed this from bgr8 to rgb8
-
+        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8") # I changed this from bgr8 to rg
         #Get classification
         return self.light_classifier.get_classification(cv_image)
 
@@ -198,7 +197,7 @@ class TLDetector(object):
 
             else:
                 state = self.get_light_state(light)
-                return light, state    
+                return stop_line_index, state    
         self.waypoints = None
         return -1, TrafficLight.UNKNOWN
 
