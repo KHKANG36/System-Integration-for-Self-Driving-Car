@@ -39,7 +39,7 @@ class TLClassifier(object):
 
         label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
         categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
-        category_index = label_map_util.create_category_index(categories)
+        self.category_index = label_map_util.create_category_index(categories)
 
 
         self.image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
@@ -76,7 +76,7 @@ class TLClassifier(object):
                                 np.squeeze(boxes),
                                 np.squeeze(classes).astype(np.int32),
                                 np.squeeze(scores),
-                                category_index,
+                                self.category_index,
                                 use_normalized_coordinates=True,
                                 line_thickness=8)
         print (class_name)
