@@ -109,7 +109,8 @@ class DBWNode(object):
             # TODO: Get predicted throttle, brake, and steering using `twist_controller`
             # You should only publish the control commands if dbw is enabled
             current_timestamp = rospy.get_time()
-            duration = current_timestamp - self.previous_timestamp
+            #duration = current_timestamp - self.previous_timestamp
+            duration = 1.0 # Greg - Not sure if should do this to keep car from slowing down to 0 before stoplight
             self.previous_timestamp = current_timestamp
             if self.dbw_enabled and self.current_velocity is not None and self.current_twist_cmd is not None:
                if self.reset_flag:
