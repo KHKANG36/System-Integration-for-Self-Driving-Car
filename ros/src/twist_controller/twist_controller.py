@@ -34,12 +34,14 @@ class Controller(object):
         acc = self.pid.step(vel_err, duration)
         #acc = self.LPF_acc.filt(acc)
 
-        if acc >0.0:
+        #if acc >0.0:
+        if vel_err >0.0:
            throttle = acc
            brake = 0.0
         else:
            throttle =0.0
-           decel = - acc
+           #decel = - acc
+           decel = abs(acc) 
            if decel <self.Car_Param.brake_deadband:
               decel = 0.0
 
