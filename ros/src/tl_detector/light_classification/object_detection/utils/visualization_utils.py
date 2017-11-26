@@ -434,7 +434,7 @@ def visualize_boxes_and_labels_on_image_array(image,
   box_to_color_map = collections.defaultdict(str)
   box_to_instance_masks_map = {}
   box_to_keypoints_map = collections.defaultdict(list)
-  class_name='N/A'
+  class_name='Unknown'
   if not max_boxes_to_draw:
     max_boxes_to_draw = boxes.shape[0]
   for i in range(min(max_boxes_to_draw, boxes.shape[0])):
@@ -451,7 +451,7 @@ def visualize_boxes_and_labels_on_image_array(image,
           if classes[i] in category_index.keys():
             class_name = category_index[classes[i]]['name']
           else:
-            class_name = 'N/A'
+            class_name = 'Unknown'
 
           #print(class_name)
           display_str = '{}: {}%'.format(
