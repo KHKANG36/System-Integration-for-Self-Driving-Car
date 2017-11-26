@@ -73,7 +73,7 @@ class TLDetector(object):
         """
         self.has_image = True
         self.camera_image = msg
-        lwp, state = self.process_traffic_lights()
+        WP, state = self.process_traffic_lights()
 
         '''
         Publish upcoming red lights at camera frequency.
@@ -86,7 +86,7 @@ class TLDetector(object):
             self.state = state
         elif self.state_count >= STATE_COUNT_THRESHOLD:
             self.last_state = self.state
-            light_wp = lwp if state == TrafficLight.RED else -1
+            light_wp = WP if state == TrafficLight.RED else -1
             self.last_wp = light_wp
             self.upcoming_red_light_pub.publish(Int32(light_wp))
         else:
@@ -141,7 +141,7 @@ class TLDetector(object):
             self.prev_light_loc = None
             return False
 
-        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8") # I changed this from bgr8 to rgb8
+        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
 
         #Get classification
         return self.light_classifier.get_classification(cv_image)
@@ -171,7 +171,7 @@ class TLDetector(object):
             
         # Find closest next stop line (traffic light) index to me
         if(self.pose):
-           car_position = self.get_closest_waypoint(self.pose.pose) 
+            car_position = self.get_closest_waypoint(self.pose.pose) 
         #rospy.logwarn(car_position) 
         
         if car_position > max(TL_waypoint_close_sort):
@@ -188,7 +188,7 @@ class TLDetector(object):
         
         # Find closest next stop line (traffic light) position to me 
         stop_line_index = TL_waypoint_next_me
-        rospy.logwarn(stop_line_index)
+        #rospy.logwarn(stop_line_index)
         stop_line_index_light = TL_waypoint_close.index(TL_waypoint_next_me)
         light = stop_line_positions[stop_line_index_light]
        
@@ -197,7 +197,7 @@ class TLDetector(object):
        
 
         if light:
-            if TL_distance > 50: 
+            if TL_distance > 60: 
                 return -1, TrafficLight.UNKNOWN
 
             else:
