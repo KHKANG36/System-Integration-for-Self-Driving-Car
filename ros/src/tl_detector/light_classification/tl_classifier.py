@@ -20,22 +20,22 @@ class TLClassifier(object):
     def __init__(self):
         #TODO load classifier
         self.TrafficLight=None 
-        PATH_TO_CKPT = '/home/student/Documents/finalproject/mk1/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/frozen_inference_graph.pb'
+        PATH_TO_CKPT = '/home/student/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/frozen_inference_graph.pb'
 
         # List of the strings that is used to add correct label for each box.
-        PATH_TO_LABELS = '/home/student/Documents/finalproject/mk1/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/traffic_label.pbtxt'
+        PATH_TO_LABELS = '/home/student/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/traffic_label.pbtxt'
 
         NUM_CLASSES = 3
 
         self.detection_graph = tf.Graph()
         with self.detection_graph.as_default():
           od_graph_def = tf.GraphDef()
+          #sess=tf.Session(graph=self.detection_graph) 
           with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
             serialized_graph = fid.read()
             od_graph_def.ParseFromString(serialized_graph)
             tf.import_graph_def(od_graph_def, name='')
-          sess=tf.Session(graph=self.detection_graph)     
-
+          self.sess=tf.Session(graph=self.detection_graph)
 
         label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
         categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
@@ -47,8 +47,6 @@ class TLClassifier(object):
         self.detection_scores = self.detection_graph.get_tensor_by_name('detection_scores:0')
         self.detection_classes = self.detection_graph.get_tensor_by_name('detection_classes:0')
         self.num_detections = self.detection_graph.get_tensor_by_name('num_detections:0')
-        
-
 
         pass
 
@@ -59,7 +57,7 @@ class TLClassifier(object):
         Returns:
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
         """
-        print("Detection commencing")
+        #print("Detection commencing")
         with self.detection_graph.as_default():
             #currently the image is read by feeding the path of the image directory
             #image_np = load_image_into_numpy_array(image)
