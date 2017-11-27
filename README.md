@@ -1,6 +1,6 @@
 ## Team X 
 ### Members
-gmccluskey@yahoo.com Greg McCluskey <br />
+gmccluskey@yahoo.com Greg McCluskey (Team Lead)<br />
 vikramaniitr@gmail.com Vikraman Karunanidhi
 
 
