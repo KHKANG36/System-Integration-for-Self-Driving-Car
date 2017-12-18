@@ -20,12 +20,14 @@ class TLClassifier(object):
     def __init__(self):
         #TODO load classifier
         self.TrafficLight=None 
-        PATH_TO_CKPT = '/home/student/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/frozen_inference_graph.pb'
+        #PATH_TO_CKPT = '/home/student/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/frozen_inference_graph.pb'
+        PATH_TO_CKPT = 'model/frozen_inference_graph.pb'
 
         # List of the strings that is used to add correct label for each box.
-        PATH_TO_LABELS = '/home/student/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/traffic_label.pbtxt'
+        #PATH_TO_LABELS = '/home/student/CarND-Capstone-Master/ros/src/tl_detector/light_classification/model/traffic_label.pbtxt'
+        PATH_TO_LABELS = 'model/traffic_label.pbtxt'
 
-        NUM_CLASSES = 3
+        NUM_CLASSES = 5
 
         self.detection_graph = tf.Graph()
         with self.detection_graph.as_default():
